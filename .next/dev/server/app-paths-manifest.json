@@ -1,0 +1,8 @@
+{
+  "/api/admin/leads/route": "app/api/admin/leads/route.js",
+  "/api/onboarding/booking/route": "app/api/onboarding/booking/route.js",
+  "/api/admin/slots/route": "app/api/admin/slots/route.js",
+  "/onboarding/confirmed/page": "app/onboarding/confirmed/page.js",
+  "/admin/slots/page": "app/admin/slots/page.js",
+  "/admin/leads/page": "app/admin/leads/page.js"
+}

@@ -1,0 +1,17 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { isAdmin } from "@/lib/guards";
+
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!isAdmin(session?.user?.email)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { poolId } = await req.json();
+  const pool = await prisma.accountPool.findUnique({ where: { id: poolId } });
+  if (!pool) return NextResponse.json({ error: "Pool not found" }, { status: 404 });
+
+  const updated = await prisma.accountPool.update({ where: { id: poolId }, data: { isActive: !pool.isActive } });
+  return NextResponse.json({ ok: true, pool: updated });
+}
