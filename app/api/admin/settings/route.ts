@@ -6,13 +6,19 @@ import { isAdmin } from "@/lib/guards";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!isAdmin(session?.user?.email)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!isAdmin(session?.user?.email))
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const data = await req.json();
+
+  // There should be only ONE settings row.
   const existing = await prisma.adminSetting.findFirst();
 
   const updated = existing
-    ? await prisma.adminSetting.update({ where: { id: existing.id }, data })
+    ? await prisma.adminSetting.update({
+        where: { id: existing.id },
+        data,
+      })
     : await prisma.adminSetting.create({ data });
 
   return NextResponse.json({ ok: true, settings: updated });

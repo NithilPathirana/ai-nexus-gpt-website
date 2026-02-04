@@ -34,7 +34,7 @@ export async function GET() {
           <hr/>
           <p style="color:#667;font-size:13px">Support: AI.Nexus.store@gmail.com | 0766398548</p>
         </div>
-      `
+      `,
     );
   }
 
@@ -44,9 +44,16 @@ export async function GET() {
   });
 
   for (const sub of graces) {
-    await prisma.subscription.update({ where: { id: sub.id }, data: { status: "PAUSED" } });
+    await prisma.subscription.update({
+      where: { id: sub.id },
+      data: { status: "PAUSED" },
+    });
     await releaseSlotIfAny(sub.userId);
   }
 
-  return NextResponse.json({ ok: true, trialsProcessed: trials.length, gracesProcessed: graces.length });
+  return NextResponse.json({
+    ok: true,
+    trialsProcessed: trials.length,
+    gracesProcessed: graces.length,
+  });
 }

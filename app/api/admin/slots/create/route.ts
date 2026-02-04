@@ -14,11 +14,17 @@ export async function POST(req: Request) {
   const form = await req.formData();
   const date = String(form.get("date") || "");
   const time = String(form.get("time") || "");
-  const capacity = Number(form.get("capacity") || "1");
+  const capacity = Number(form.get("capacity") || 1);
 
-  const dt = DateTime.fromISO(`${date}T${time}`, { zone: "Asia/Colombo" }).toUTC();
-  await prisma.onboardingSlot.create({
-    data: { startsAt: dt.toJSDate(), capacity: Math.max(1, capacity), bookedCount: 0, isActive: true },
+  const dt = DateTime.fromISO(`${date}T${time}`, {
+    zone: "Asia/Colombo",
+  }).toUTC();
+  await prisma.slot.create({
+    data: {
+      startsAt: dt.toJSDate(),
+      endsAt: dt.plus({ minutes: 15 }).toJSDate(), // or your intended duration
+      isActive: true,
+    },
   });
 
   return NextResponse.redirect(new URL("/admin/slots", req.url));

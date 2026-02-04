@@ -1,0 +1,5 @@
+1:"$Sreact.fragment"
+2:I[97367,["/_next/static/chunks/2f236954d6a65e12.js"],"OutletBoundary"]
+3:"$Sreact.suspense"
+0:{"buildId":"RkP8K49Y1vElSt0nQeb6g","rsc":["$","$1","c",{"children":[["$","div",null,{"className":"section","children":["$","div",null,{"className":"card","children":[["$","div",null,{"className":"badge","children":"Booked"}],["$","h1",null,{"className":"h1","style":{"fontSize":46,"marginTop":12},"children":"Thank you"}],["$","p",null,{"className":"p","style":{"fontSize":16},"children":"Our team will get back to you shortly."}],["$","p",null,{"className":"p","style":{"fontSize":16},"children":"The link to the onboarding Zoom meeting will be sent to you shortly (with date, time, and passcode)."}],["$","div",null,{"style":{"marginTop":16},"children":["$","a",null,{"className":"btn btnPrimary","href":"/","children":"Back to home"}]}]]}]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"loading":null,"isPartial":false}
+4:null

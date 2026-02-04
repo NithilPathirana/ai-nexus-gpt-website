@@ -9,14 +9,22 @@ function toAllowedDays(csv: string) {
 
 export async function getAdminSettings() {
   let s = await prisma.adminSetting.findFirst();
+
   if (!s) {
     s = await prisma.adminSetting.create({
       data: {
         zoomRecurringLink: process.env.ZOOM_RECURRING_LINK || "",
         graceAccessAllowed: true,
+
+        allowedDaysCsv: "1,2,3,4,5,6,7",
+        bookingDurationM: 30,
+        bufferMinutes: 10,
+        dailyStartHour: 9,
+        dailyEndHour: 17,
       },
     });
   }
+
   return s;
 }
 
@@ -37,7 +45,9 @@ export async function computeSlotsForDate(dateISO: string) {
     where: { date: { gte: start, lte: end }, status: "BOOKED" },
   });
 
-  const bookedTimes = new Set(bookings.map((b) => b.date.toISOString().slice(11, 16)));
+  const bookedTimes = new Set(
+    bookings.map((b) => b.date.toISOString().slice(11, 16)),
+  );
 
   const slots: string[] = [];
   const dur = settings.bookingDurationM;

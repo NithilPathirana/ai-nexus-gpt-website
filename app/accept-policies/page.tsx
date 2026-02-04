@@ -3,13 +3,17 @@ import { authOptions } from "@/lib/auth";
 
 export default async function AcceptPoliciesPage() {
   const session = await getServerSession(authOptions);
+
   if (!session?.user?.email) {
     return (
-    <div className="section">
-      <div className="card">
-        <h1 style={{ marginTop: 0 }}>Agree to policies</h1>
-        <p>You need to log in first.</p>
-        <a href="/api/auth/signin">Log in →</a>
+      <div className="section">
+        <div className="card">
+          <h1 className="h1">You need to sign in</h1>
+          <p className="p">Please sign in to continue.</p>
+          <a className="btn btnPrimary" href="/api/auth/signin">
+            Sign in
+          </a>
+        </div>
       </div>
     );
   }
@@ -17,21 +21,35 @@ export default async function AcceptPoliciesPage() {
   return (
     <div className="section">
       <div className="card">
-      <h1 style={{ marginTop: 0 }}>Agree to policies</h1>
-      <p>You must agree to all policies before continuing.</p>
+        <h1 className="h1">Accept policies</h1>
+        <p className="p">
+          Before continuing, you must accept our Terms, Privacy, Usage, and
+          Refund policy versions.
+        </p>
 
-      <form action="/accept-policies/submit" method="post" style={{ display: "grid", gap: 10 }}>
-        <label><input name="terms" type="checkbox" required /> I agree to the <a href="/terms" target="_blank">Terms</a></label>
-        <label><input name="privacy" type="checkbox" required /> I agree to the <a href="/privacy" target="_blank">Privacy Policy</a></label>
-        <label><input name="usage" type="checkbox" required /> I agree to the <a href="/usage" target="_blank">Usage Policy</a></label>
-        <label><input name="refunds" type="checkbox" required /> I agree to the <a href="/refunds" target="_blank">Refund Policy</a></label>
-        <button type="submit">Agree & continue</button>
-      </form>
+        <form
+          action="/accept-policies/submit"
+          method="post"
+          style={{ display: "grid", gap: 10 }}
+        >
+          <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <input type="checkbox" required /> I accept the Terms
+          </label>
+          <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <input type="checkbox" required /> I accept the Privacy policy
+          </label>
+          <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <input type="checkbox" required /> I accept the Usage policy
+          </label>
+          <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <input type="checkbox" required /> I accept the Refund policy
+          </label>
 
-      <small style={{ display: "block", marginTop: 10 }}>
-        If these policies change in the future, you may be asked to accept again.
-      </small>
-    </div>
+          <button className="btn btnPrimary" type="submit">
+            Continue
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

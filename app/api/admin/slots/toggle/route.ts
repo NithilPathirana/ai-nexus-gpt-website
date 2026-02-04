@@ -12,9 +12,12 @@ export async function POST(req: Request) {
 
   const form = await req.formData();
   const id = String(form.get("id") || "");
-  const slot = await prisma.onboardingSlot.findUnique({ where: { id } });
+  const slot = await prisma.slot.findUnique({ where: { id } });
   if (slot) {
-    await prisma.onboardingSlot.update({ where: { id }, data: { isActive: !slot.isActive } });
+    await prisma.slot.update({
+      where: { id },
+      data: { isActive: !slot.isActive },
+    });
   }
   return NextResponse.redirect(new URL("/admin/slots", req.url));
 }

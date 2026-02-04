@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     if (!terms) {
       return NextResponse.json(
         { error: "You must accept terms first." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -55,16 +55,34 @@ export async function POST(req: Request) {
         throw new Error("This slot is no longer available.");
       }
 
-      const alreadyBooked = await tx.booking.findUnique({ where: { slotId } });
+      const alreadyBooked = await tx.booking.findFirst({
+        where: { slotId, status: "BOOKED" },
+      });
       if (alreadyBooked) {
         throw new Error("This slot was just booked by someone else.");
       }
 
       const created = await tx.booking.create({
-        data: { slotId, leadId, timezone },
+        data: {
+          slot: { connect: { id: slotId } },
+          lead: { connect: { id: leadId } },
+          timezone,
+
+          // required fields in Booking
+          date: slot.startsAt,
+          durationM: Math.max(
+            1,
+            Math.round(
+              (slot.endsAt.getTime() - slot.startsAt.getTime()) / 60000,
+            ),
+          ),
+          status: "BOOKED",
+        },
         include: {
           slot: { select: { startsAt: true, endsAt: true } },
-          lead: { select: { email: true, phone: true, country: true, timezone: true } },
+          lead: {
+            select: { email: true, phone: true, country: true, timezone: true },
+          },
         },
       });
 
@@ -88,7 +106,7 @@ export async function POST(req: Request) {
 
       if (!RESEND_API_KEY || !EMAIL_FROM || !ADMIN_EMAIL) {
         throw new Error(
-          "Missing env vars: RESEND_API_KEY, EMAIL_FROM, ADMIN_EMAIL"
+          "Missing env vars: RESEND_API_KEY, EMAIL_FROM, ADMIN_EMAIL",
         );
       }
 
@@ -164,8 +182,7 @@ export async function POST(req: Request) {
     console.error("BOOK API ERROR:", e);
     return NextResponse.json(
       { error: e?.message || "Server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

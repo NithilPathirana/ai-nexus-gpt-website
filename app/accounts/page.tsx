@@ -1,35 +1,22 @@
-import { prisma } from "@/lib/prisma";
-
-export default async function AccountsPage() {
-  const pools = await prisma.accountPool.findMany({
-    where: { isActive: true },
-    include: { slots: true },
-    orderBy: { createdAt: "asc" },
-  });
-
+export default function AccountsPage() {
   return (
-    <div>
-      <div className="card">
-        <h1 style={{ marginTop: 0 }}>Available account pools</h1>
-        <p>Pick a pool. Each pool has 10 slots.</p>
-      </div>
+    <div className="section">
+      <div className="grid2">
+        <div className="card">
+          <div className="badge">Accounts</div>
+          <h1 className="h1">Choose an account pool</h1>
+          <p className="p">Select which pool you want to use.</p>
+        </div>
 
-      <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-        {pools.map((p) => {
-          const used = p.slots.length;
-          const available = Math.max(0, p.totalSlots - used);
-          return (
-            <div className="card" key={p.id}>
-              <b>{p.name}</b>
-              <div style={{ marginTop: 6 }}>Slots available: <b>{available}</b> / {p.totalSlots}</div>
-              <div style={{ marginTop: 10 }}>
-                <a href={`/accounts/${p.id}`}>Select →</a>
-              </div>
-            </div>
-          );
-        })}
+        <div className="card">
+          <h2 className="h2">Available pools</h2>
+          <div style={{ display: "grid", gap: 10 }}>
+            <a className="btn btnPrimary" href="/accounts/demo-pool">
+              Continue
+            </a>
+          </div>
+        </div>
       </div>
-    </div>
     </div>
   );
 }

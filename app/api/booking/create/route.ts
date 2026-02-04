@@ -7,24 +7,62 @@ import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user?.email)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { date, time } = await req.json(); // date: YYYY-MM-DD, time: HH:mm
 
-  const user = await prisma.user.findUnique({ where: { email: session.user.email } });
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+  if (!user)
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  const pol = await prisma.policyAcceptance.findUnique({ where: { userId: user.id } });
-  if (!pol) return NextResponse.json({ error: "Policies not accepted" }, { status: 428 });
+  const pol = await prisma.policyAcceptance.findUnique({
+    where: { userId: user.id },
+  });
+  if (!pol)
+    return NextResponse.json(
+      { error: "Policies not accepted" },
+      { status: 428 },
+    );
 
   const kyc = await prisma.kycRecord.findUnique({ where: { userId: user.id } });
-  if (!kyc) return NextResponse.json({ error: "KYC not submitted" }, { status: 428 });
+  if (!kyc)
+    return NextResponse.json({ error: "KYC not submitted" }, { status: 428 });
 
-  const slot = await prisma.poolSlot.findUnique({ where: { userId: user.id }, include: { pool: true } });
-  if (!slot) return NextResponse.json({ error: "Select an account pool first" }, { status: 428 });
+  // User must have selected a pool first
+  const userWithPool = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { selectedPoolId: true },
+  });
+
+  if (!userWithPool?.selectedPoolId) {
+    return NextResponse.json(
+      { error: "Select an account pool first" },
+      { status: 428 },
+    );
+  }
+
+  // Pick an available slot from that pool
+  const slot = await prisma.poolSlot.findFirst({
+    where: { poolId: userWithPool.selectedPoolId, isAvailable: true },
+    orderBy: { createdAt: "asc" },
+    include: { pool: true },
+  });
+
+  if (!slot) {
+    return NextResponse.json(
+      { error: "No available slots in this pool" },
+      { status: 409 },
+    );
+  }
 
   const settings = await getAdminSettings();
-  const zoom = settings.zoomRecurringLink || process.env.ZOOM_RECURRING_LINK || "https://us05web.zoom.us/j/84080899947?pwd=L2aAYxznDlmuZbpwbaITGCn4O1w2To.1";
+  const zoom =
+    settings.zoomRecurringLink ||
+    process.env.ZOOM_RECURRING_LINK ||
+    "https://us05web.zoom.us/j/84080899947?pwd=L2aAYxznDlmuZbpwbaITGCn4O1w2To.1";
 
   // Store booking time as Sri Lanka time offset (+05:30). DB stores UTC.
   const dt = new Date(`${date}T${time}:00.000+05:30`);
@@ -48,7 +86,7 @@ export async function POST(req: Request) {
           Trial starts <b>after the call</b> is marked completed by admin. Support: AI.Nexus.store@gmail.com | 0766398548
         </p>
       </div>
-    `
+    `,
   );
 
   return NextResponse.json({ ok: true, booking });

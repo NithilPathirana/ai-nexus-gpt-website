@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 type BookingData = {
@@ -22,7 +22,7 @@ function formatSlot(iso: string) {
   });
 }
 
-export default function ConfirmedPage() {
+function ConfirmedInner() {
   const router = useRouter();
   const sp = useSearchParams();
   const bookingId = sp.get("b") || "";
@@ -46,9 +46,10 @@ export default function ConfirmedPage() {
           return;
         }
 
-        const res = await fetch(`/api/onboarding/booking?id=${encodeURIComponent(bookingId)}`, {
-          cache: "no-store",
-        });
+        const res = await fetch(
+          `/api/onboarding/booking?id=${encodeURIComponent(bookingId)}`,
+          { cache: "no-store" },
+        );
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.error || "Could not load booking.");
 
@@ -72,7 +73,8 @@ export default function ConfirmedPage() {
         </h1>
 
         <p className="p">
-          We sent a confirmation email. We’ll also message you on WhatsApp with the Zoom link.
+          We sent a confirmation email. We’ll also message you on WhatsApp with
+          the Zoom link.
         </p>
 
         {loading ? (
@@ -80,9 +82,14 @@ export default function ConfirmedPage() {
             <div className="p">Loading your booking...</div>
           </div>
         ) : error ? (
-          <div className="card" style={{ borderColor: "rgba(255,120,120,0.6)", marginTop: 14 }}>
+          <div
+            className="card"
+            style={{ borderColor: "rgba(255,120,120,0.6)", marginTop: 14 }}
+          >
             <b style={{ color: "#ffd4d4" }}>Fix this</b>
-            <div className="p" style={{ marginTop: 6 }}>{error}</div>
+            <div className="p" style={{ marginTop: 6 }}>
+              {error}
+            </div>
           </div>
         ) : booking ? (
           <div className="card" style={{ marginTop: 14 }}>
@@ -101,11 +108,16 @@ export default function ConfirmedPage() {
           </div>
         ) : null}
 
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 16 }}>
+        <div
+          style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 16 }}
+        >
           <button className="btn btnGhost" onClick={() => router.push("/")}>
             Home
           </button>
-          <button className="btn btnPrimary" onClick={() => router.push("/contact")}>
+          <button
+            className="btn btnPrimary"
+            onClick={() => router.push("/contact")}
+          >
             Contact
           </button>
         </div>
@@ -114,4 +126,22 @@ export default function ConfirmedPage() {
   );
 }
 
-
+export default function ConfirmedPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="section">
+          <div className="card">
+            <div className="badge">Booked</div>
+            <h1 className="h1" style={{ fontSize: 44, marginTop: 12 }}>
+              Loading…
+            </h1>
+            <p className="p">Preparing your confirmation page.</p>
+          </div>
+        </div>
+      }
+    >
+      <ConfirmedInner />
+    </Suspense>
+  );
+}

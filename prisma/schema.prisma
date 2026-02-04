@@ -1,5 +1,4 @@
 // Prisma schema for AI Nexus GPT (Neon Postgres)
-//
 // This schema supports:
 // 1) NextAuth (Prisma Adapter tables)
 // 2) Onboarding leads (email/WhatsApp/country/timezone)
@@ -31,6 +30,15 @@ model User {
   emailVerified DateTime?
   image         String?
 
+  selectedPoolId String?
+  selectedPool   AccountPool? @relation(fields: [selectedPoolId], references: [id])
+
+  subscription     Subscription?
+  kycRecord        KycRecord?
+  policyAcceptance PolicyAcceptance?
+
+  bookings Booking[]
+  poolSlot PoolSlot?
   accounts Account[]
   sessions Session[]
 
@@ -107,32 +115,54 @@ model Slot {
 model Booking {
   id String @id @default(cuid())
 
-  slotId String @unique
-  slot   Slot   @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  // user-booking (logged-in booking/create route)
+  userId String?
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  leadId String
-  lead   OnboardingLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  // required by availability system
+  date      DateTime
+  durationM Int
+  status    String @default("BOOKED")
 
-  // Stored for display (useful when emailing user)
+  // lead-based booking (onboarding flow) kept
+  slotId String?
+  slot   Slot? @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  leadId String?
+  lead   OnboardingLead? @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
   timezone String?
 
-  // Optional Zoom details (you can fill these later)
   zoomJoinUrl   String?
   zoomMeetingId String?
   zoomPasscode  String?
 
   createdAt DateTime @default(now())
 
+  @@index([userId])
+  @@index([date])
   @@index([leadId])
 }
+
 
 // -----------------------------
 // Admin settings + future features
 // -----------------------------
 
 model AdminSetting {
-  key       String   @id
-  value     String
+  id String @id @default(cuid())
+
+  zoomRecurringLink   String  @default("")
+  graceAccessAllowed  Boolean @default(true)
+
+  // availability rules (used by lib/availability.ts)
+  allowedDaysCsv      String  @default("1,2,3,4,5,6,7") // Mon=1 ... Sun=7
+  bookingDurationM    Int     @default(30)
+  bufferMinutes       Int     @default(10)
+  dailyStartHour      Int     @default(9)
+  dailyEndHour        Int     @default(17)
+
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
@@ -145,17 +175,66 @@ model AccountPool {
   updatedAt  DateTime @updatedAt
 
   slots PoolSlot[]
+
+  selectedByUsers User[]
 }
 
 model PoolSlot {
   id          String   @id @default(cuid())
   poolId      String
-  label       String
+  label       String   @default("")
   isAvailable Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   pool AccountPool @relation(fields: [poolId], references: [id], onDelete: Cascade)
 
   @@unique([poolId, label])
+}
+
+model PolicyAcceptance {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  termsVersion   String
+  privacyVersion String
+  usageVersion   String
+  refundsVersion String
+  ipAddress      String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model KycRecord {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName  String
+  nicLast4  String
+  verified  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  trialEndsAt DateTime?
+  status           String   @default("trial") // trial | active | past_due | canceled etc.
+  paymentDemandedAt DateTime?
+  graceEndsAt      DateTime?
+  payherePaymentLink String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

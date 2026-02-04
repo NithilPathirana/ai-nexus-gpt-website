@@ -1,0 +1,5 @@
+1:"$Sreact.fragment"
+2:I[97367,["/_next/static/chunks/2f236954d6a65e12.js"],"OutletBoundary"]
+3:"$Sreact.suspense"
+0:{"buildId":"RkP8K49Y1vElSt0nQeb6g","rsc":["$","$1","c",{"children":[["$","div",null,{"className":"section","children":["$","div",null,{"className":"card","children":[["$","h1",null,{"style":{"marginTop":0},"children":"Book your Zoom call"}],["$","p",null,{"children":"Select a date, then choose an available time. You’ll get the Zoom link by email."}],["$","form",null,{"action":"/book/choose","method":"post","style":{"display":"flex","gap":10,"flexWrap":"wrap","alignItems":"center"},"children":[["$","label",null,{"children":"Date:"}],["$","input",null,{"name":"date","required":true,"type":"date"}],["$","button",null,{"type":"submit","children":"Load times"}]]}],["$","small",null,{"style":{"display":"block","marginTop":10},"children":"Trial starts after the call is completed (admin marks it completed)."}]]}]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"loading":null,"isPartial":false}
+4:null
