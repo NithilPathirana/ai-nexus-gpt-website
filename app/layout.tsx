@@ -9,7 +9,7 @@ export const metadata = {
   title: "AI Nexus GPT",
   description: "AI subscription • Sri Lanka",
   icons: {
-    icon: "/logo.png", 
+    icon: "/icon.png", 
   },
 };
 
