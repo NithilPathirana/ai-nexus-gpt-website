@@ -1,8 +1,16 @@
 import "./globals.css";
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata = {
   title: "AI Nexus GPT",
   description: "AI subscription • Sri Lanka",
+  icons: {
+    icon: "/logo.png", 
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
