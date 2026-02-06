@@ -1,10 +1,9 @@
-export function isAdmin(email?: string | null) {
-  if (!email) return false;
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-  const admins =
-    process.env.ADMIN_EMAIL
-      ?.split(",")
-      .map(e => e.trim().toLowerCase()) || [];
-
-  return admins.includes(email.toLowerCase());
+export async function requireAdmin() {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.id !== "admin") {
+    throw new Error("Unauthorized");
+  }
 }
