@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/guards";
 
 export default async function AdminPayments() {
   const session = await getServerSession(authOptions);
-  if (!isAdmin(session?.user?.email)) return <div className="card">Forbidden.</div>;
+  if (!requireAdmin(session?.user?.email)) return <div className="card">Forbidden.</div>;
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
