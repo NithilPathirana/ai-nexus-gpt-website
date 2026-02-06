@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/mail";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { isAdmin } from "@/lib/guards";
+import { requireAdmin } from "@/lib/guards";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
