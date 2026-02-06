@@ -157,12 +157,18 @@ export default function AdminSlotsPage() {
             </div>
 
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <button className="btn btnPrimary" onClick={addSlot} disabled={saving}>
-                {saving ? "Adding..." : "Add slot"}
-              </button>
-              <button className="btn btnGhost" onClick={load} disabled={loading}>
-                {loading ? "Refreshing..." : "Refresh"}
-              </button>
+                <button className="btn btnGhost" onClick={() => router.push("/admin/leads")}>
+                  Leads
+                </button>
+                <button className="btn btnGhost" onClick={() => router.push("/admin/bookings")}>
+                  Bookings
+                </button>
+                <button className="btn btnGhost" onClick={() => router.push("/")}>
+                  Home
+                </button>
+                <button className="btn btnGhost" onClick={() => router.push("/onboarding/terms")}>
+                  Onboarding
+                </button>
             </div>
           </div>
         </div>
