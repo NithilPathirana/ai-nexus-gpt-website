@@ -1,11 +1,8 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/guards";
 
 export default async function AdminPayments() {
-  const session = await getServerSession(authOptions);
-  if (!requireAdmin(session?.user?.email)) return <div className="card">Forbidden.</div>;
+  await requireAdmin(); // ✅ no arguments
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
@@ -23,7 +20,9 @@ export default async function AdminPayments() {
           <div className="card" key={u.id} style={{ background: "#0a1020" }}>
             <b>{u.email}</b><br/>
             Status: {u.subscription?.status || "NEW"}<br/>
-            Current link: {u.subscription?.payherePaymentLink ? <a href={u.subscription.payherePaymentLink} target="_blank">Open</a> : "—"}
+            Current link: {u.subscription?.payherePaymentLink ? (
+              <a href={u.subscription.payherePaymentLink} target="_blank">Open</a>
+            ) : "—"}
 
             <form action="/admin/payments/send" method="post" style={{ marginTop: 10, display: "grid", gap: 8 }}>
               <input type="hidden" name="userId" value={u.id} />
