@@ -3,7 +3,10 @@ import { authOptions } from "@/lib/auth";
 
 export async function requireAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.id !== "admin") {
+
+  if (!session || session.user?.email !== "admin@local") {
     throw new Error("Unauthorized");
   }
+
+  return session;
 }
