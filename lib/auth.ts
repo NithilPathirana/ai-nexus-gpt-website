@@ -1,6 +1,5 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextAuthOptions } from "next-auth";
-import { compare } from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -16,10 +15,8 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials) return null;
 
-        const username = credentials.username;
-        const password = credentials.password;
+        const { username, password } = credentials;
 
-        // compare with env vars
         if (
           username === process.env.ADMIN_USERNAME &&
           password === process.env.ADMIN_PASSWORD
