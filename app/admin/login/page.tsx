@@ -1,68 +1,52 @@
 "use client";
 
+import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
-export default function AdminLoginPage() {
-  const router = useRouter();
+export default function AdminLogin() {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
+  const [error, setError] = useState("");
 
-  async function onLogin() {
-    setErr("");
-    setLoading(true);
-    try {
-      const res = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
 
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "Login failed.");
+    const res = await signIn("credentials", {
+      username,
+      password,
+      redirect: true,
+      callbackUrl: "/admin/bookings",
+    });
 
-      router.push("/admin/slots");
-    } catch (e: any) {
-      setErr(e?.message || "Login failed.");
-    } finally {
-      setLoading(false);
-    }
+    if (res?.error) setError("Invalid username or password");
   }
 
   return (
     <div className="section">
-      <div className="card" style={{ maxWidth: 520, margin: "0 auto" }}>
-        <h1 className="h1" style={{ fontSize: 38 }}>Admin login</h1>
-        <p className="p" style={{ marginTop: 8 }}>Enter the admin password to manage slots.</p>
+      <div className="card" style={{ maxWidth: 420, margin: "auto" }}>
+        <h1 className="h1">Admin Login</h1>
 
-        <div style={{ marginTop: 16 }}>
-          <label className="p" style={{ display: "block", marginBottom: 8 }}>Password</label>
+        {error && <div className="error">{error}</div>}
+
+        <form onSubmit={submit} style={{ display: "grid", gap: 12 }}>
           <input
-            className="input"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
+          <input
+            placeholder="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Admin password"
           />
-        </div>
 
-        {err && (
-          <div className="card" style={{ borderColor: "rgba(255,120,120,0.6)", marginTop: 14 }}>
-            <b style={{ color: "#ffd4d4" }}>Fix this</b>
-            <div className="p" style={{ marginTop: 6 }}>{err}</div>
-          </div>
-        )}
-
-        <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-          <button className="btn btnPrimary" onClick={onLogin} disabled={loading || !password}>
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-          <button className="btn btnGhost" onClick={() => router.push("/")}>
-            Home
-          </button>
-        </div>
+          <button className="btn btnPrimary">Login</button>
+        </form>
       </div>
     </div>
   );
 }
+
