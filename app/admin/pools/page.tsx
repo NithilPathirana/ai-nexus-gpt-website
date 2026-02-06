@@ -4,8 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/guards";
 
 export default async function AdminPools() {
-  const session = await getServerSession(authOptions);
-  if (!isAdmin(session?.user?.email)) return <div className="card">Forbidden.</div>;
+  await requireAdmin();
 
   const pools = await prisma.accountPool.findMany({ orderBy: { createdAt: "asc" }, include: { slots: true } });
 
