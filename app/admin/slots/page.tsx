@@ -160,9 +160,6 @@ export default function AdminSlotsPage() {
                 <button className="btn btnGhost" onClick={() => router.push("/admin/leads")}>
                   Leads
                 </button>
-                <button className="btn btnGhost" onClick={() => router.push("/admin/bookings")}>
-                  Bookings
-                </button>
                 <button className="btn btnGhost" onClick={() => router.push("/")}>
                   Home
                 </button>
