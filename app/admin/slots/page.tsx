@@ -162,6 +162,7 @@ export default function AdminSlotsPage() {
                 </button>
                 <button className="btn btnGhost" onClick={() => router.push("/admin/bookings")}>
                   Bookings
+                </button>
                 <button className="btn btnGhost" onClick={() => router.push("/")}>
                   Home
                 </button>
