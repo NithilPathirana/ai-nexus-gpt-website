@@ -3,33 +3,31 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/guards";
 
 export async function GET(req: Request) {
-  return POST(req);
-}
-
-export async function POST(req: Request) {
   try {
     await requireAdmin();
 
     const url = new URL(req.url);
-    const id = url.searchParams.get("id") || "";
+    const upcoming = url.searchParams.get("upcoming") === "1";
+    const now = new Date();
 
-    if (!id) {
-      return NextResponse.json({ error: "Missing booking id" }, { status: 400 });
-    }
-
-    // Update whatever "complete" means in your schema.
-    // In your schema you have Booking.status, so we mark it completed.
-    const updated = await prisma.booking.update({
-      where: { id },
-      data: { status: "COMPLETED" },
+    const rows = await prisma.booking.findMany({
+      where: upcoming
+        ? { slot: { startsAt: { gte: now } } }
+        : undefined,
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      include: {
+        lead: { select: { email: true, phone: true, country: true, timezone: true } },
+        slot: { select: { startsAt: true, endsAt: true } },
+      },
     });
 
-    return NextResponse.json({ ok: true, booking: updated });
+    return NextResponse.json({ ok: true, bookings: rows });
   } catch (e: any) {
-    if (String(e?.message || "").toLowerCase().includes("unauthorized")) {
+    if (String(e?.message).includes("Unauthorized")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    console.error("ADMIN BOOKINGS COMPLETE ERROR:", e);
+    console.error("ADMIN BOOKINGS API ERROR:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
